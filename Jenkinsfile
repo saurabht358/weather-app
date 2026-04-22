@@ -8,11 +8,6 @@ pipeline {
 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git 'https://github.com/saurabht358/weatherapp.git'
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
