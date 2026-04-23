@@ -2,34 +2,35 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB = "saurabht358"
-        IMAGE_NAME = "weather-app"
+        IMAGE = "saurabht358/weather-app"
+        TAG = "${BUILD_NUMBER}"
     }
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/saurabht358/weather-app.git'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %DOCKER_HUB%/%IMAGE_NAME%:latest .'
+                bat "docker build -t %IMAGE%:%TAG% ."
             }
         }
 
         stage('Push Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    bat '''
-                    docker logout
-                    docker login -u %USER% -p %PASS%
-                    docker push %DOCKER_HUB%/%IMAGE_NAME%:latest
-                    '''
-                }
+                bat "docker push %IMAGE%:%TAG%"
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                bat 'kubectl apply -f deployment.yaml'
-                bat 'kubectl apply -f service.yaml'
+                bat """
+                kubectl set image deployment/weather-app weather-app=saurabht358/weather-app:%BUILD_NUMBER%
+                """
             }
         }
     }
