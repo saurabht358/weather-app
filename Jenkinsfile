@@ -10,7 +10,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/saurabht358/weather-app.git'
+                git branch: 'main', url: 'https://github.com/saurabht358/weather-app.git'
             }
         }
 
